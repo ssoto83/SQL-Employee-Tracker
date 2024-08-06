@@ -54,3 +54,133 @@ const viewDepartments = async () => {
     console.table(res.rows);
     mainMenu();
 };
+
+const viewRoles = async () => {
+    const res = await client.query(`
+        SELECT roles.id, roles.title, roles.salary, departments.name AS department
+        FROM roles
+        Join department ON roles.department_id = department.id
+        `);
+        console.table(res.rows);
+        mainMenu();
+};
+
+const viewEmployees = async () => {
+    const res = await client.query(`
+        SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS department,
+        roles.salary, CONCAT(manager.first_name, '', manager.last_name) AS manager
+        FROM employees
+        JOIN roles ON employees.role_id = roles.id
+        JOIN departments ON roles.department_id = departments.id
+        LEFT JOIN employees manager ON employees.manager_id = manager.id
+        `);
+        console.table(res.rows);
+        mainMenu();
+};
+
+const addDepartment = async () => {
+    const answer = await inquirer.prompt({
+        name: 'name',
+        type: 'input',
+        message: 'Enter the name of the new department:'
+    });
+
+    await client.query('INSERT INTO departments (name) VALUES ($1)', [answer.name]);
+    console.log(`added ${answer.name} to the database`);
+    mainMenu();
+};
+
+const addRole = async () => {
+    const departments = await client.query('SELECT * FROM departments');
+    const departmentChoices = departments.rows.map(({ id, name }) => ({ name, value: id }));
+
+    const answer = await inquirer.prompt([
+        {
+            name: 'title',
+            type: 'input',
+            message: 'Enter the title of the new role:'
+        },
+        {
+            name: 'salary',
+            type: 'input',
+            message: 'Enter the salary for the new role:'
+        },
+        {
+            name: 'department_id',
+            type: 'list',
+            message: 'Select the department for the new role:',
+            choices: departmentChoices
+        }
+    ]);
+
+    await client.query('INSERT INTO roles (title, salary, department_id) VALUES ($1, $2, $3)', [answer.title, answer.salary, answer.department_id]);
+    console.log(`Added ${answer.title} to the database`);
+    mainMenu();
+};
+
+const addEmployee = async () => {
+    const roles = await client.query('SELECT * FROM roles');
+    const roleChoices = roles.rows.map(({ id, title }) => ({ name: title, value: id }));
+
+    const employees = await client.query('SELECT * FROM employees');
+    const managerChoices = employees.rows.map(({ id, first_name, last_name }) => ({ name: `${first_name} ${last_name}`, value: id }));
+    managerChoices.unshift({ name: 'None', value: null });
+
+    const answer = await inquirer.prompt([
+        {
+            name: 'first_name',
+            type: 'input',
+            message: 'Enter the first name of the new employee:'
+        },
+        {
+            name: 'last_name',
+            type: 'input',
+            message: 'Enter the last name of the new employee:'
+        },
+        {
+            name: 'role_id',
+            type: 'list',
+            message: 'Select the role for the new employee:',
+            choices: roleChoices
+        },
+        {
+            name: 'manager_id',
+            type: 'list',
+            message: 'Select the manager for the new employee:',
+            choices: managerChoices
+        }
+    ]);
+
+    await client.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)', [answer.first_name, answer.last_name, answer.role_id, answer.manager_id]);
+    console.log(`Added ${answer.first_name} ${answer.last_name} to the database`);
+    mainMenu();
+};
+
+const updateEmployeeRole = async () => {
+    const employees = await client.query('SELECT * FROM employees');
+    const employeeChoices = employees.rows.map(({ id, first_name, last_name }) => ({ name: `${first_name} ${last_name}`, value: id }));
+
+    const roles = await client.query('SELECT * FROM roles');
+    const roleChoices = roles.rows.map(({ id, title }) => ({ name: title, value: id }));
+
+    const answer = await inquirer.prompt([
+        {
+            name: 'employee_id',
+            type: 'list',
+            message: 'Select the employee to update:',
+            choices: employeeChoices
+        },
+        {
+            name: 'role_id',
+            type: 'list',
+            message: 'Select the new role for the employee:',
+            choices: roleChoices
+        }
+    ]);
+
+    await client.query('UPDATE employee SET role_id = $1 WHERE id = $2', [answer.role_id, answer.employee_id]);
+    console.log('Updated employee role');
+    mainMenu();
+};
+
+mainMenu();
