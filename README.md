@@ -22,7 +22,7 @@ Ensure to have the following software and packages installed:
 `Inquirer 8.2.4`  
 
 ## Steps 
-1. git clone git@github.com:ssoto83/SQL-Employee-Tracker.git  
+1. git clone https://github.com/ssoto83/SQL-Employee-Tracker.git 
 2. npm install  
 3. psql -U postgres
 4. password
