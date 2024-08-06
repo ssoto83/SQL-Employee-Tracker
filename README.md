@@ -7,7 +7,8 @@ Employee Tracker is a command-line application built using Node.js, Inquirer 8.2
 * Installation  
 * Steps
 * Usage  
-* Prompt features  
+* Prompt features
+* Prompt screenshot  
 * License  
 * Contributing  
 * Questions  
@@ -23,8 +24,8 @@ Ensure to have the following software and packages installed:
 ## Steps 
 1. git clone git@github.com:ssoto83/SQL-Employee-Tracker.git  
 2. npm install  
-3. psql -U postgress
-4. password is 'admin'
+3. psql -U postgres
+4. password
 5. \i schema.sql  
 6. \i seeds.sql  
 
@@ -42,6 +43,11 @@ Start the application with the following command: `node index.js` and follow the
 * Update a role
 * Delete an employee
 * Exit  
+
+## Prompts screenshot  
+
+
+![prompt list screenshot](./assets/Prompts-sample.png)
 
 ## License  
 This project is licensed under MIT license.   
